@@ -10,8 +10,33 @@ local lib = {
     overrides = {},
     flags = {},
     team_check = false,
-    drawings = {}
+    drawings = {},
+    debug = true
 }
+
+local function DEBUG_PRINT(...)
+    if lib.flags.debug then
+        print("[DEBUG]: ", ...)
+    end
+end
+
+setmetatable(lib.overrides, {
+    __index = function(_, key)
+        if lib.overrides[key] then
+            DEBUG_PRINT("calling override: " .. tostring(key))
+            local ret = lib.overrides[key]
+            DEBUG_PRINT("Override ret: " .. tostring(ret))
+            return ret
+        else
+            DEBUG_PRINT("Attempted to access non-existent override: " .. tostring(key))
+            return nil
+        end
+    end,
+    __newindex = function(_, key, value)
+        DEBUG_PRINT("Setting new override: " .. tostring(key) .. " = " .. tostring(value))
+        rawset(lib.overrides, key, value)
+    end
+})
 
 lib.settings.boxes = {
     enabled = true,
@@ -51,7 +76,7 @@ lib.settings.health = {
 }
 
 lib.settings.skeleton = {
-    enabled = true,
+    enabled = false,
     color = Color3.fromRGB(255, 255, 255),
     use_team_color = true,
     thickness = 2,
